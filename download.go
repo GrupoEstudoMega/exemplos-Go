@@ -1,19 +1,18 @@
 package main
 
 import (
-	"fmt"
+	"io"
 	"net/http"
-	"time"
+	"os"
 )
 
 func main() {
-	http.HandleFunc("/teste", teste)
+	http.HandleFunc("/a", teste)
 	http.ListenAndServe(":8090", nil)
 
 }
 
 func teste(res http.ResponseWriter, req *http.Request) {
-	time.Sleep(10 * time.Second)
-	res.Write([]byte("teste"))
-	fmt.Println("respondeu")
+	f, _ := os.Open("oracle.go")
+	io.Copy(res, f)
 }

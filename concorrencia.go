@@ -2,22 +2,24 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
+	//"math/rand"
 	"runtime"
+	"time"
 )
 
 func process(c chan int) {
-	y := rand.Intn(100)
+	time.Sleep(1 * time.Second)
+	/*y := rand.Intn(100)
 	for x := 0; x < 1000000000; x++ {
 		y += x
-	}
-	c <- y
+	}*/
+	c <- 1
 
 }
 
 func main() {
 	runtime.GOMAXPROCS(8)
-	c := make(chan int, 100)
+	c := make(chan int, 2)
 	for x := 0; x < 100; x++ {
 		go process(c)
 	}

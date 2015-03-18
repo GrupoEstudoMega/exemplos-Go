@@ -13,6 +13,8 @@ import (
 	// "reflect"
 	// "time"
 	//	"strconv"
+	"mega/go-util/dbg"
+	"mega/go-util/erro"
 )
 
 type Valor struct {
@@ -31,6 +33,8 @@ func main() {
 
 func executa(connect string, query string) {
 	fmt.Println(connect, query)
+
+	dbg.SetDebug(false)
 
 	//var err error
 	//var db *sql.DB
@@ -58,11 +62,24 @@ func executa(connect string, query string) {
 	}
 	defer rows.Close()
 
-	x := 0
-	for rows.Next() {
-		x++
+	columns, _ := rows.Columns()
+
+	fmt.Println(columns)
+
+	scanArgs := make([]interface{}, len(columns))
+
+	values := make([]interface{}, len(columns))
+
+	for i := range values {
+		scanArgs[i] = &values[i]
 	}
-	fmt.Printf("%d registros\n", x)
+
+	for rows.Next() {
+		err := rows.Scan(scanArgs...)
+		erro.Trata(err)
+		fmt.Println(values)
+	}
+
 }
 
 func Trace(startTime time.Time) {

@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-oci8"
+	"mega/go-util/dbg"
 	"os"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -21,26 +23,61 @@ func executa() {
 	}
 	defer db.Close()
 
-	times := 100
+	times := 3
 
+	selects := []string{"select uf_st_sigla, log_st_nome from mgglo.glo_logradouro",
+		"select acaom_st_documento, lan_ch_tipocontab from mgglo.glo_acaomovimento",
+		"select ref_st_tipo, org_tau_st_codigo from mgfin.fin_referenciafin"}
 	queries := make([]*sql.Rows, 0, times)
 
-	for x := 0; x < times; x++ {
-		rows, err := db.Query("select pa_st_sigla, pa_st_nome from mgglo.glo_pais")
+	/*for x := 0; x < times; x++ {
+
+		rows, err := db.Query(selects[x])
 		if err != nil {
 			fmt.Println(err)
 		}
 		rows.Next()
 		queries = append(queries, rows)
-	}
+	}*/
+
+	defer dbg.Trace(time.Now())
 
 	var wg sync.WaitGroup
 	wg.Add(times)
 
-	var m sync.Mutex
+	//var m sync.Mutex
+
+	total := 0
 
 	for x := 0; x < times; x++ {
-		go func(rows *sql.Rows, wg *sync.WaitGroup, m *sync.Mutex) {
+		rows, err := db.Query(selects[x])
+		if err != nil {
+			fmt.Println(err)
+		}
+		queries = append(queries, rows)
+		for {
+
+			//m.Lock()
+			if queries[x].Next() {
+				var f1 string
+				var f2 string
+				queries[x].Scan(&f1, &f2)
+				total++
+				//fmt.Println(f1)
+				if f1 == f2 {
+				}
+				//println(f1, f2)
+				//m.Unlock()
+			} else {
+				//m.Unlock()
+				break
+			}
+
+		}
+		rows.Close()
+		wg.Done()
+
+		/*go func(rows *sql.Rows, wg *sync.WaitGroup) {
 
 			for {
 				//m.Lock()
@@ -48,6 +85,8 @@ func executa() {
 					var f1 string
 					var f2 string
 					rows.Scan(&f1, &f2)
+					//fmt.Println(f1)
+					total++
 					if f1 == f2 {
 					}
 					//println(f1, f2)
@@ -59,9 +98,10 @@ func executa() {
 
 			}
 			wg.Done()
-		}(queries[x], &wg, &m)
+		}(queries[x], &wg)*/
 	}
 	wg.Wait()
+	fmt.Println(total)
 
 	/*if err != nil {
 		fmt.Println(err)

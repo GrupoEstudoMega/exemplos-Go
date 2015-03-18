@@ -33,7 +33,9 @@ func executa() {
 	defer db.Close()
 
 	//rows, err := db.Query("select 10 valor, sysdate - 1 data from mgglo.glo_pais where pa_st_sigla = 'SUI'")
-	rows, err := db.Query("select xml_bl_xml from mgint.int_xml where trn_in_id = 3626")
+	//rows, err := db.Query("select xml_bl_xml from mgint.int_xml where trn_in_id = 3626")
+	//rows, err := db.Query("select xml_bl_xml from mgint.int_xml where trn_in_id = 3626")
+	rows, err := db.Query("select value from clobtest where id = 3")
 	//fmt.Println(rows, err)
 	if err != nil {
 		fmt.Println(err)
@@ -42,11 +44,12 @@ func executa() {
 
 	//fmt.Println(PackageData(rows))
 
-	var xml string
+	var xml sql.NullString
 
 	//valuesString := make([]string, 2)
 
 	for rows.Next() {
+		fmt.Println("teste")
 
 		/*		var i sql.NullInt64
 				var campo string
@@ -54,7 +57,8 @@ func executa() {
 				var tabela sql.NullString
 				var s sql.NullString*/
 		rows.Scan(&xml)
-		ioutil.WriteFile(`c:\temp\sped_gerado.txt`, []byte(xml), 0644)
+		fmt.Println(xml.String)
+		ioutil.WriteFile(`c:\temp\teste_clob.xml`, []byte(xml.String), 0644)
 		//fmt.Println(values[1])
 		//rows.Scan(&s)
 		/*fmt.Println(i)
